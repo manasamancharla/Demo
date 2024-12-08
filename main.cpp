@@ -4,23 +4,30 @@
 #include <asio.hpp>
 #include "networking/ProxyServer.hpp"
 
-int main(int argc, char *argv[])
+int main()
 {
-  // Set default values for port, thread pool size, and cache capacity
-  unsigned short port = 8080;
-  size_t threadPoolSize = 4;  // Adjust based on your system or preference
-  size_t cacheCapacity = 100; // Set cache capacity (you can change this as needed)
+  try
+  {
+    unsigned short port = 8080; // Port for the proxy server to listen on
 
-  // Create the io_context required for Asio operations
-  asio::io_context io_context;
+    // Create the ProxyServer instance
+    ProxyServer proxyServer(port);
 
-  // Initialize the ProxyServer with the io_context and the parameters
-  ProxyServer server(io_context, port, threadPoolSize, cacheCapacity);
+    // Start the server
+    proxyServer.start();
 
-  std::cout << "Proxy server running on port " << port << "..." << std::endl;
+    std::cout << "Proxy server running on port " << port << std::endl;
 
-  // Start the server
-  server.start();
+    // Wait for user input to stop the server
+    std::string input;
+    std::getline(std::cin, input);
+    proxyServer.stop();
+  }
+  catch (const std::exception &e)
+  {
+    std::cerr << "Exception: " << e.what() << std::endl;
+    return 1;
+  }
 
   return 0;
 }

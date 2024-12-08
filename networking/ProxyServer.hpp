@@ -1,34 +1,34 @@
-#ifndef PROXYSERVER_HPP
-#define PROXYSERVER_HPP
+#ifndef PROXY_SERVER_HPP
+#define PROXY_SERVER_HPP
 
 #define ASIO_STANDALONE
 
 #include <asio.hpp>
+#include <string>
+#include <memory>
+#include <vector>
 #include <thread>
-#include "LRU.hpp"
+#include <iostream>
 
 class ProxyServer
 {
 public:
-  ProxyServer(asio::io_context &io_context, unsigned short port, size_t threadPoolSize, size_t cacheCapacity)
-      : io_context_(io_context),
-        acceptor_(io_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)),
-        threadPoolSize_(threadPoolSize),
-        cache_(cacheCapacity) {}
-
+  ProxyServer(unsigned short port);
   void start();
+  void stop();
 
 private:
-  void acceptConnections();
-  void handleClient(std::shared_ptr<asio::ip::tcp::socket> clientSocket);
-  void forwardRequestToServer(std::shared_ptr<asio::ip::tcp::socket> clientSocket, const std::string &request, const std::string &cacheKey);
-  void readFromServer(std::shared_ptr<asio::ip::tcp::socket> clientSocket, std::shared_ptr<asio::ip::tcp::socket> serverSocket, std::shared_ptr<std::vector<char>> buffer, const std::string &cacheKey);
-  std::string extractCacheKey(const std::string &request);
+  void acceptConnection();
+  void handleRequest(std::shared_ptr<asio::ip::tcp::socket> clientSocket);
+  void forwardRequestToServer(std::shared_ptr<asio::ip::tcp::socket> clientSocket, const std::string &request);
+  void readFromServer(std::shared_ptr<asio::ip::tcp::socket> clientSocket,
+                      std::shared_ptr<asio::ip::tcp::socket> serverSocket,
+                      std::shared_ptr<std::vector<char>> buffer);
+  std::string extractHostFromRequest(const std::string &request);
 
-  asio::io_context &io_context_;
+  asio::io_context io_context_;
   asio::ip::tcp::acceptor acceptor_;
-  size_t threadPoolSize_;
-  LRUCache cache_;
+  std::thread serverThread_;
 };
 
 #endif
