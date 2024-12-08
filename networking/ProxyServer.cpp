@@ -25,6 +25,7 @@ void ProxyServer::stop()
 
 void ProxyServer::acceptConnection()
 {
+
     auto clientSocket = std::make_shared<asio::ip::tcp::socket>(io_context_);
     acceptor_.async_accept(*clientSocket, [this, clientSocket](std::error_code ec)
                            {
