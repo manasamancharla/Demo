@@ -1,50 +1,26 @@
-
-# Minimum CMake version required
 cmake_minimum_required(VERSION 3.10)
 
-# Project name and version
-project(Proxy VERSION 1.0.0 LANGUAGES CXX)
+project(Proxy-Server VERSION 1.0.0 LANGUAGES CXX)
 
-# Set the C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Define ASIO as an interface library
-add_library(asio INTERFACE)
+add_library(my_interface_library INTERFACE)
 
-# Enable ASIO standalone mode
-target_compile_definitions(asio INTERFACE ASIO_STANDALONE)
+target_compile_definitions(my_interface_library INTERFACE ASIO_STANDALONE)
 
-
-# Find all source files in the networking directory and main.cpp
 file(GLOB_RECURSE SOURCES
-    networking/*.hpp
-    networking/*.cpp
+    proxy-1.0.0/*.hpp
+    proxy-1.0.0/*.cpp
     main.cpp
 )
 
+target_include_directories(my_interface_library INTERFACE ${CMAKE_SOURCE_DIR}/asio-1.30.2/include)
+target_include_directories(my_interface_library INTERFACE ${CMAKE_SOURCE_DIR}/proxy-1.0.0/)
 
-# Include other headers
-target_include_directories(asio INTERFACE ${CMAKE_SOURCE_DIR}/asio-1.30.2/include)
-
-
-# For UNIX-like systems (Linux, macOS)
-if(UNIX)
-    target_link_libraries(Proxy PRIVATE pthread)
-endif()
-
-# For Windows
-if(WIN32)
-    add_definitions(-D_WIN32_WINNT=0x0A00)
-endif()
-
-
-# Add the executable with all source files
 add_executable(Proxy ${SOURCES})
 
-# Link the ASIO library with the executable
-target_link_libraries(Proxy PRIVATE asio)
-
+target_link_libraries(Proxy PRIVATE my_interface_library)
 
 
 
